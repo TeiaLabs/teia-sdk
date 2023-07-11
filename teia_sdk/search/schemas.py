@@ -27,5 +27,5 @@ class SearchResult(TypedDict):
     relevance: int
 
 
-class Searchresponse(TypedDict):
+class SearchResponse(TypedDict):
     results: list[SearchResult]
