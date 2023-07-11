@@ -59,5 +59,5 @@ setuptools.setup(
         ],
     },
     install_requires=requirements,
-    extras_require=requirements_extras,
+    # extras_require=requirements_extras,
 )
