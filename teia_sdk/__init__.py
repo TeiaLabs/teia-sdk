@@ -1,0 +1,10 @@
+import logging
+
+import dotenv
+
+dotenv.load_dotenv()
+logging.basicConfig(level=logging.CRITICAL)  # here to prevent log.WARN clutter
+
+from .search.client import SearchClient
+
+__all__ = ["SearchClient"]
