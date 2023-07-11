@@ -2,6 +2,8 @@ import json
 import os
 import httpx
 
+from .schemas import SearchRequest, SearchResponse
+
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
     SEARCH_API_URL = os.getenv("SEARCH_API_URL", "https://athena.teialabs.com.br:3232")
@@ -13,7 +15,7 @@ except KeyError:
 
 
 class SearchClient:
-    relativepath = "/search"
+    relativepath = "/search/"  # TODO remove slash
 
     @classmethod
     def get_headers(cls) -> dict[str, str]:
@@ -23,8 +25,8 @@ class SearchClient:
         return obj
 
     @classmethod
-    def search(cls, body: dict) -> dict:
-        response = httpx.get(
+    def search(cls, body: SearchRequest) -> SearchResponse:
+        response = httpx.post(
             url=f"{SEARCH_API_URL}{cls.relativepath}",
             headers=cls.get_headers(),
             json=body,
