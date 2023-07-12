@@ -6,5 +6,6 @@ dotenv.load_dotenv()
 logging.basicConfig(level=logging.CRITICAL)  # here to prevent log.WARN clutter
 
 from .search.client import SearchClient
+from .melting.client import MFClient
 
-__all__ = ["SearchClient"]
+__all__ = ["SearchClient", "MFClient"]
