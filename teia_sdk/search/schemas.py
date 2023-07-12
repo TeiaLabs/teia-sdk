@@ -1,7 +1,5 @@
 from typing import Optional, TypedDict
 
-from tauth.schemas import Creator
-
 
 class SearchSettings(TypedDict):
     kb_name: str
