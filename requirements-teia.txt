@@ -1,3 +1,2 @@
 melting_schemas[teia] @ git+ssh://git@github.com/TeiaLabs/melting-face.git@master#subdirectory=schemas
 tauth[teia] @ git+ssh://git@github.com/TeiaLabs/melting-face.git@master#subdirectory=tauth
-```

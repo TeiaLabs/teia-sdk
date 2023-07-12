@@ -43,8 +43,7 @@ requirements_extras = get_optional_requirements()
 
 setuptools.setup(
     name="TeiaLabs-SDK",
-    # version=get_version(),
-    version="0.0.1",
+    version=get_version(),
     author="TeiaLabs",
     author_email="contato@teialabs.com",
     description="Teia SDK",
@@ -59,5 +58,5 @@ setuptools.setup(
         ],
     },
     install_requires=requirements,
-    # extras_require=requirements_extras,
+    extras_require=requirements_extras,
 )
