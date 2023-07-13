@@ -14,6 +14,7 @@ from melting_schemas.templating.prompt import ChatPrompt, GeneratedFields
 from melting_schemas.encoding.text_encoding import RawTextEncoding, TextEncodingResponse
 
 from .schemas import ChatCompletionResponse
+from ..utils import handle_erros
 
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
@@ -42,6 +43,7 @@ class CompletionClient:
             headers=cls.get_headers(),
             json=body,
         )
+        handle_erros(res)
         return res.json()
 
     @classmethod
@@ -50,6 +52,7 @@ class CompletionClient:
             f"{MELT_API_URL}{cls.relative_path}/{identifier}",
             headers=cls.get_headers(),
         )
+        handle_erros(res)
         return res.json()
 
     @classmethod
@@ -92,6 +95,7 @@ class TemplatingClient:
             )
         else:
             raise ValueError("Must provide either 'identifier' or 'name'.")
+        handle_erros(res)
         return res.json()
 
     @classmethod
@@ -105,6 +109,7 @@ class TemplatingClient:
             headers=cls.get_headers(),
             params=params,
         )
+        handle_erros(res)
         return res.json()
 
     @classmethod
@@ -114,6 +119,7 @@ class TemplatingClient:
             headers=cls.get_headers(),
             json=body,
         )
+        handle_erros(res)
         return res.json()
 
     @classmethod
@@ -147,7 +153,7 @@ class TextEncodingClient:
             headers=cls.get_headers(),
             json=body,
         )
-        # TODO: handle errors; res.raise_for_status()
+        handle_erros(res)
         return res.json()
 
 
