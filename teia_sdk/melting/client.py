@@ -26,7 +26,7 @@ except KeyError:
 
 
 class CompletionClient:
-    relative_path = "/historian/chat-completions/create"
+    relative_path = "/historian/chat-completions"
 
     @classmethod
     def get_headers(cls) -> dict[str, str]:
@@ -38,7 +38,7 @@ class CompletionClient:
     @classmethod
     def create_one(cls, body: dict) -> ChatCompletionCreationResponse:
         res = httpx.post(
-            f"{MELT_API_URL}{cls.relative_path}",
+            f"{MELT_API_URL}{cls.relative_path}/create",
             headers=cls.get_headers(),
             json=body,
         )
