@@ -23,5 +23,5 @@ def handle_erros(response: requests.Response):
         response.raise_for_status()
     except HTTPError as e:
         exc = get_error_class(response.status_code)
-        print(exc(**response.json()))
+        ppjson(exc(**response.json()))
         exit(1)
