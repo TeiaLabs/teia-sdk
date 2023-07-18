@@ -4,7 +4,6 @@ from starlette import status as http_status
 
 from . import exceptions
 from .schemas import PluginResponse, SelectPlugin, PluginUsage, PluginInfo
-from ..utils import handle_erros
 
 
 try:
@@ -31,7 +30,6 @@ class PluginClient:
             f"{PLUGINS_API_URL}/available",
             headers=cls.get_headers(),
         )
-        handle_erros(res)
         return res.json()
 
     @classmethod
