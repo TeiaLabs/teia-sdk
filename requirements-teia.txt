@@ -1,3 +1,3 @@
-melting_schemas[teia] @ git+ssh://git@github.com/TeiaLabs/melting-face.git@v0.1.12#subdirectory=schemas
-tauth[teia] @ git+ssh://git@github.com/TeiaLabs/melting-face.git@v0.1.12#subdirectory=tauth
+melting_schemas[teia] @ git+ssh://git@github.com/TeiaLabs/melting-face.git@master#subdirectory=schemas
+tauth[teia] @ git+ssh://git@github.com/TeiaLabs/melting-face.git@master#subdirectory=tauth
 http_error_schemas @ git+ssh://git@github.com/TeiaLabs/http-error-schemas.git@master
