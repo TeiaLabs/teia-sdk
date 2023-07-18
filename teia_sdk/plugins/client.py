@@ -56,11 +56,17 @@ class PluginClient:
         )
 
         sel_run_url = f"{PLUGINS_API_URL}/select-and-run-plugin"
-        plugins_data = httpx.post(
-            sel_run_url,
-            json=sp,
-            headers=cls.get_headers(),
-        )
+        try:
+            plugins_data = httpx.post(
+                sel_run_url,
+                json=sp,
+                headers=cls.get_headers(),
+            )
+        except httpx.ReadTimeout as ex:
+            raise exceptions.ErrorPluginAPISelectAndRun(
+                f"Request to {sel_run_url} timed out\nError: {ex}. "
+            )
+
         if plugins_data.status_code != http_status.HTTP_200_OK:
             raise exceptions.ErrorPluginAPISelectAndRun(
                 f"Request: {sel_run_url}\njson: {sp}\nError: {plugins_data.status_code}: {plugins_data.text}. "
