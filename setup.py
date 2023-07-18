@@ -42,7 +42,7 @@ requirements = read_multiline_as_list("requirements.txt")
 requirements_extras = get_optional_requirements()
 
 setuptools.setup(
-    name="TeiaLabs-SDK",
+    name="teia_sdk",
     version=get_version(),
     author="TeiaLabs",
     author_email="contato@teialabs.com",

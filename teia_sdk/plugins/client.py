@@ -1,14 +1,15 @@
 import os
 import httpx
-from pydantic import BaseModel
-from typing import Optional, TypedDict
-from .schemas import PluginResponse, SelectPlugin, PluginUsage
+from starlette import status as http_status
+
+from . import exceptions
+from .schemas import PluginResponse, SelectPlugin, PluginUsage, PluginInfo
 from ..utils import handle_erros
 
 
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
-    PLUGINS_API_URL = os.getenv("PLUGINS_API_URL", "http://54.81.193.45:5000/")
+    PLUGINS_API_URL = os.getenv("PLUGINS_API_URL", "https://athena.teialabs.com.br:3333")
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "
     m += "[yellow]'TEIA_API_KEY'[/yellow] cannot be empty."
@@ -16,7 +17,7 @@ except KeyError:
     exit(1)
 
 
-class PluginSelectorClient:
+class PluginClient:
     @classmethod
     def get_headers(cls) -> dict[str, str]:
         obj = {
@@ -32,6 +33,54 @@ class PluginSelectorClient:
         )
         handle_erros(res)
         return res.json()
+
+    @classmethod
+    def select_and_run_plugin(
+        cls,
+        prompt_name: str,
+        current_message: str,
+        context: str,
+        plugin_names: list[str]
+    ) -> PluginResponse:
+
+        if not plugin_names:
+            return PluginResponse(
+                selector_completion="",
+                plugins_infos=[],
+                error=f"No plugins in plugin_names"
+            )
+
+        sp = SelectPlugin(
+            prompt_name=prompt_name,
+            current_message=current_message,
+            context=context,
+            plugin_names=plugin_names,
+        )
+
+        sel_run_url = f"{PLUGINS_API_URL}/select-and-run-plugin"
+        plugins_data = httpx.post(
+            sel_run_url,
+            json=sp,
+            headers=cls.get_headers(),
+        )
+        if plugins_data.status_code != http_status.HTTP_200_OK:
+            raise exceptions.ErrorPluginAPISelectAndRun(
+                f"Request: {sel_run_url}\njson: {sp}\nError: {plugins_data.status_code}: {plugins_data.text}. "
+            )
+
+        try:
+            plugins_data = plugins_data.json()
+        except AttributeError:
+            raise exceptions.ErrorToGetPluginResponse(
+                f"Tried to convert response to json. Response: {plugins_data}. "
+            )
+
+        plugins_data["plugins_infos"] = [
+            PluginInfo(**p) for p in plugins_data["plugins_infos"]
+        ]
+        plugins_data = PluginResponse(**plugins_data)
+
+        return plugins_data
 
     @classmethod
     def run_selector(
@@ -51,12 +100,6 @@ class PluginSelectorClient:
             data=sp.json(),
             headers=headers,
         )
-
-        print(plugins_selected)
-        print(plugins_selected.status_code)
-        print(plugins_selected.text)
-
-        from starlette import status as http_status
 
         if plugins_selected.status_code != http_status.HTTP_200_OK:
             return PluginResponse(

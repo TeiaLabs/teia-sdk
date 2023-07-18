@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from typing import Optional, TypedDict
 
 
@@ -21,7 +20,7 @@ class SelectPlugin(TypedDict):
     prompt_name: str
     current_message: str
     context: str
-    plugin_names: list
+    plugin_names: list[str]
 
 
 class PluginUsage(TypedDict):
