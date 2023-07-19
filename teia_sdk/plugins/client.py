@@ -91,22 +91,23 @@ class PluginClient:
 
     @classmethod
     def run_selector(
-        cls, message: str, context: str, plugin_list: list[str], prompt_name: str
+        cls,
+        current_message: str,
+        context: str,
+        plugin_names: list[str],
+        prompt_name: str,
     ) -> PluginUsage:
         sp = SelectPlugin(
             prompt_name=prompt_name,
-            current_message=message,
+            current_message=current_message,
             context=context,
-            plugin_names=plugin_list,
+            plugin_names=plugin_names,
         )
 
-        plugin_host = PLUGINS_API_URL
-        headers = cls.get_headers()
-
         plugins_selected = cls.client.post(
-            f"{plugin_host}/select-plugin",
-            data=sp.json(),
-            headers=headers,
+            f"{PLUGINS_API_URL}/select-plugin",
+            json=sp,  # errado
+            headers=cls.get_headers(),
         )
 
         plugins_selected.raise_for_status()
@@ -117,15 +118,9 @@ class PluginClient:
 
     @classmethod
     def run_plugins(cls, plugin_calls: list[PluginUsage]):
-        plugin_payload = str(plugin_calls)
-
-        body_data = {
-            "plugin_selector_payload": plugin_payload,
-        }
-
         plugin_data = httpx.post(
             f"{PLUGINS_API_URL}/run-plugin",
-            params=body_data,
+            json=plugin_calls,
             headers=cls.get_headers(),
         )
 

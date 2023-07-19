@@ -1,10 +1,13 @@
+from ..exceptions import TeiaSdkError
 
 
-class ErrorToGetPluginInfo(Exception):
+class ErrorToGetPluginInfo(TeiaSdkError):
     """Error to get plugin info"""
 
-class ErrorToGetPluginResponse(Exception):
+
+class ErrorToGetPluginResponse(TeiaSdkError):
     """Error to get plugin info"""
 
-class ErrorPluginAPISelectAndRun(Exception):
+
+class ErrorPluginAPISelectAndRun(TeiaSdkError):
     """API was not able to select and run plugins"""
