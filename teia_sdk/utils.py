@@ -1,9 +1,11 @@
 import json
+
+import httpx
 import requests
-from httpx import HTTPError
+from http_error_schemas.factory import get_error_class
 from rich import print
 
-from http_error_schemas.factory import get_error_class
+from .exceptions import TeiaSdkError
 
 
 def pjson(obj):
@@ -16,12 +18,10 @@ def ppjson(obj):
     print(pjson(obj))
 
 
-def handle_erros(response: requests.Response):
-    """Handle HTTP errors."""
-
+def handle_erros(response: requests.Response | httpx.Response):
     try:
         response.raise_for_status()
-    except HTTPError as e:
+    except (requests.RequestException, httpx.HTTPError) as e:
         exc = get_error_class(response.status_code)
         ppjson(exc(**response.json()))
-        exit(1)
+        raise TeiaSdkError(response.json()) from e

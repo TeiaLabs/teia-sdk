@@ -11,8 +11,9 @@ from melting_schemas.historian.chat_completions import (
 )
 from melting_schemas.templating import ChatPromptTemplate
 from melting_schemas.templating.prompt import ChatPrompt, GeneratedFields
-from melting_schemas.encoding.text_encoding import RawTextEncoding, TextEncodingResponse
 
+from .services.text_encodings import TextEncodingClient
+from .services.fcall_completions import FCallCompletionsClient
 from .schemas import ChatCompletionResponse
 from ..utils import handle_erros
 
@@ -136,28 +137,8 @@ class TemplatingClient:
             return {"status_code": res.status_code, **body}
 
 
-class TextEncodingClient:
-    relative_path = "/text-encodings"
-
-    @classmethod
-    def get_headers(cls) -> dict[str, str]:
-        obj = {
-            "Authorization": f"Bearer {TEIA_API_KEY}",
-        }
-        return obj
-
-    @classmethod
-    def encode(cls, body: RawTextEncoding) -> TextEncodingResponse:
-        res = httpx.post(
-            f"{MELT_API_URL}{cls.relative_path}",
-            headers=cls.get_headers(),
-            json=body,
-        )
-        handle_erros(res)
-        return res.json()
-
-
 class MFClient:
     chat_prompts = TemplatingClient
     completion = CompletionClient
     encoding = TextEncodingClient
+    fcall_completion = FCallCompletionsClient
