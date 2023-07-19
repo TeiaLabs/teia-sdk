@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, TypedDict
 
-from melting_schemas.enginius import ChatMLMessage
+from melting_schemas.completion.chat import ChatMLMessage
 from melting_schemas.historian import Templating
 
 from melting_face.completion.types import FinishReason, TokenUsage
