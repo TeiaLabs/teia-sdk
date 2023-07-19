@@ -8,7 +8,9 @@ from .schemas import PluginResponse, SelectPlugin, PluginUsage, PluginInfo
 
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
-    PLUGINS_API_URL = os.getenv("PLUGINS_API_URL", "https://athena.teialabs.com.br:3333")
+    PLUGINS_API_URL = os.getenv(
+        "PLUGINS_API_URL", "https://athena.teialabs.com.br:3333"
+    )
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "
     m += "[yellow]'TEIA_API_KEY'[/yellow] cannot be empty."
@@ -17,7 +19,6 @@ except KeyError:
 
 
 class PluginClient:
-
     client = httpx.Client(timeout=60)
 
     @classmethod
@@ -41,14 +42,13 @@ class PluginClient:
         prompt_name: str,
         current_message: str,
         context: str,
-        plugin_names: list[str]
+        plugin_names: list[str],
     ) -> PluginResponse:
-
         if not plugin_names:
             return PluginResponse(
                 selector_completion="",
-                plugins_infos=[],
-                error=f"No plugins in plugin_names"
+                plugin_infos=[],
+                error=f"No plugins in plugin_names",
             )
 
         sp = SelectPlugin(
@@ -82,8 +82,8 @@ class PluginClient:
                 f"Tried to convert response to json. Response: {plugins_data}. "
             )
 
-        plugins_data["plugins_infos"] = [
-            PluginInfo(**p) for p in plugins_data["plugins_infos"]
+        plugins_data["plugin_infos"] = [
+            PluginInfo(**p) for p in plugins_data["plugin_infos"]
         ]
         plugins_data = PluginResponse(**plugins_data)
 
@@ -114,7 +114,7 @@ class PluginClient:
 
         plugin_calls = PluginUsage(**plugins_selected.json()["plugin_usage"][0])
         return plugin_calls
-    
+
     @classmethod
     def run_plugins(cls, plugin_calls: list[PluginUsage]):
         plugin_payload = str(plugin_calls)
