@@ -7,5 +7,6 @@ logging.basicConfig(level=logging.CRITICAL)  # here to prevent log.WARN clutter
 
 from .search.client import SearchClient
 from .melting.client import MFClient
+from .plugins.client import PluginClient
 
-__all__ = ["SearchClient", "MFClient"]
+__all__ = ["SearchClient", "MFClient", "PluginClient"]
