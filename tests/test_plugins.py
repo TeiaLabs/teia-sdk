@@ -14,16 +14,32 @@ class TestPluginsClient:
     def test_select_and_run_plugin(self, client: PluginClient):
         response = client.select_and_run_plugin(
             prompt_name="teia.plugins-api.plugin-selector",
-            current_message=" whats the waetther like in new yourk right now?",
+            current_message=" whats the waetther like in New York right now?",
             context="test",
             plugin_names=["weather_plugin"],
         )
-        ppjson(response)
         assert response["plugin_infos"][0]["params"]["place"] == "New York"
         assert response["plugin_infos"][0]["name"] == "weather_plugin"
 
     def test_select_plugin(self, client: PluginClient):
-        pass
+        response = client.run_selector(
+            prompt_name="teia.plugins-api.plugin-selector",
+            current_message="whats the waetther like in New York right now?",
+            context="test",
+            plugin_names=["weather_plugin"],
+        )
+        print(ppjson(response))
+        assert response["arguments"]["place"] == "New York"
+        assert response["plugin"] == "weather_plugin"
 
-    def test_run_plugin():
-        pass
+    def test_run_plugin(self, client: PluginClient):
+        plugin_calls = [
+            {
+                "plugin": "weather_plugin",
+                "method": "current",
+                "arguments": {"place": "New York"},
+            }
+        ]
+        response = client.run_plugins(plugin_calls=plugin_calls)
+        assert response["plugin_infos"][0]["params"]["place"] == "New York"
+        assert response["plugin_infos"][0]["name"] == "weather_plugin"
