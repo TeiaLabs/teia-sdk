@@ -43,4 +43,6 @@ def test_fcall_create_one():
         settings={"model": "gpt-3.5-turbo-0613"},
     )
     res = MFClient.fcall_completion.create_one(body)
-    pydantic_model = create_model_from_typeddict(FCallCompletionCreationResponse)
+    pydantic_model = create_model_from_typeddict(FCallCompletionCreationResponse)  # type: ignore
+    pydantic_model(**res)
+    assert "22" in res["output"]["content"]

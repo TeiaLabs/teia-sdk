@@ -20,7 +20,7 @@ class FCallCompletionsClient:
         res = httpx.post(
             f"{MELT_API_URL}{cls.relative_path}/create",
             headers=cls.get_headers(),
-            json=body,
+            json=body.dict(),
         )
         handle_erros(res)
         return res.json()
