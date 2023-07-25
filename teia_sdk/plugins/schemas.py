@@ -1,4 +1,5 @@
 from typing import Optional, TypedDict
+from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 
 
 class PluginInfo(TypedDict):
@@ -19,13 +20,13 @@ class PluginResponse(TypedDict):
 
 
 class SelectPlugin(TypedDict):
-    prompt_name: str
-    current_message: str
-    context: str
+    messages: list[ChatMLMessage]
     plugin_names: list[str]
+    model_settings: FCallModelSettings
 
 
 class PluginUsage(TypedDict):
     plugin: str
     method: str
     arguments: dict
+

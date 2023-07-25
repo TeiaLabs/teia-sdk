@@ -3,7 +3,13 @@ import httpx
 from starlette import status as http_status
 
 from . import exceptions
-from .schemas import PluginResponse, SelectPlugin, PluginUsage, PluginInfo
+from .schemas import (
+    PluginResponse,
+    SelectPlugin,
+    PluginUsage,
+    PluginInfo,
+)
+from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 
 
 try:
@@ -39,10 +45,9 @@ class PluginClient:
     @classmethod
     def select_and_run_plugin(
         cls,
-        prompt_name: str,
-        current_message: str,
-        context: str,
+        messages: list[ChatMLMessage],
         plugin_names: list[str],
+        model_settings: FCallModelSettings,
     ) -> PluginResponse:
         if not plugin_names:
             return PluginResponse(
@@ -52,10 +57,9 @@ class PluginClient:
             )
 
         sp = SelectPlugin(
-            prompt_name=prompt_name,
-            current_message=current_message,
-            context=context,
+            messages=messages,
             plugin_names=plugin_names,
+            model_settings=model_settings
         )
 
         sel_run_url = f"{PLUGINS_API_URL}/select-and-run-plugin"
@@ -92,16 +96,14 @@ class PluginClient:
     @classmethod
     def run_selector(
         cls,
-        current_message: str,
-        context: str,
+        messages: list[ChatMLMessage],
         plugin_names: list[str],
-        prompt_name: str,
+        model_settings: FCallModelSettings,
     ) -> PluginUsage:
         sp = SelectPlugin(
-            prompt_name=prompt_name,
-            current_message=current_message,
-            context=context,
+            messages=messages,
             plugin_names=plugin_names,
+            model_settings=model_settings,
         )
 
         plugins_selected = cls.client.post(
