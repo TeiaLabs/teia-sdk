@@ -19,7 +19,10 @@ class TemplatingClient:
         return obj
 
     @classmethod
-    def read_one(cls, identifier: Optional[str], name: Optional[str]) -> ChatPrompt:
+    def read_one(
+        cls, identifier: Optional[str] = None, name: Optional[str] = None
+    ) -> ChatPrompt:
+        print(cls.get_headers())
         if identifier is not None:
             res = httpx.get(
                 f"{MELT_API_URL}{cls.relative_path}/{identifier}",
