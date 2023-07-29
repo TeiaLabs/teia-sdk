@@ -5,7 +5,7 @@ from melting_schemas.completion.chat import ChatMLMessage
 from melting_schemas.historian import Templating
 
 from melting_face.completion.types import FinishReason, TokenUsage
-from tauth.schemas import Creator
+from melting_schemas.meta import Creator
 
 
 class ChatCompletionResponse(TypedDict):
