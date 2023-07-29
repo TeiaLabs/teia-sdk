@@ -27,8 +27,8 @@ class TestPluginsClient:
             messages=[ChatMLMessage(role="user", content="Who is Simion Petrov?")],
             plugin_names=["internal_search"],
         )
-        print(ppjson(response))
-        assert "Simion Petrov" in response["plugin_infos"][0]["params"]["query"]
+        ppjson(response)
+        assert "Simion Petrov" in response["arguments"]["query"]
         assert response["plugin"] == "internal_search"
 
     def test_run_plugin(self, client: PluginClient):
