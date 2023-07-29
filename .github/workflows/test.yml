@@ -54,5 +54,4 @@ jobs:
         run: |
           pip install .[teia]
       - name: Test application.
-        working-directory: ./
-        run: pytest ./tests/ --tb=no
+        run: pytest ./tests
