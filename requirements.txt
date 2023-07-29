@@ -1,5 +1,5 @@
 httpx
-pydantic[email]
+pydantic[email]<2
 python-dotenv
 requests
 rich
