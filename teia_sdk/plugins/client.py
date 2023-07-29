@@ -15,7 +15,7 @@ from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
     PLUGINS_API_URL = os.getenv(
-        "PLUGINS_API_URL", "https://athena.teialabs.com.br:3333"
+        "PLUGINS_API_URL", "https://plugins.athena.teialabs.com.br"
     )
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "

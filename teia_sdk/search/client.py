@@ -6,7 +6,7 @@ from .schemas import SearchRequest, SearchResponse
 
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
-    SEARCH_API_URL = os.getenv("SEARCH_API_URL", "https://athena.teialabs.com.br:3232")
+    SEARCH_API_URL = os.getenv("SEARCH_API_URL", "https://plugins.athena.teialabs.com.br")
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "
     m += "[yellow]'TEIA_API_KEY'[/yellow] cannot be empty."
