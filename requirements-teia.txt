@@ -1,2 +1,2 @@
 http_error_schemas @ git+ssh://git@github.com/TeiaLabs/http-error-schemas.git@master
-melting_schemas @ git+ssh://git@github.com/TeiaLabs/melting-face.git@master#subdirectory=schemas
+melting_schemas[teia] @ git+ssh://git@github.com/TeiaLabs/melting-face.git@master#subdirectory=schemas
