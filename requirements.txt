@@ -1,5 +1,6 @@
 httpx
-typer[all]
-rich
+pydantic[email]
 python-dotenv
 requests
+rich
+typer[all]
