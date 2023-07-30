@@ -3,4 +3,5 @@ pydantic[email]<2
 python-dotenv
 requests
 rich
+starlette
 typer[all]
