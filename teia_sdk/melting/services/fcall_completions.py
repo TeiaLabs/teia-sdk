@@ -1,4 +1,5 @@
 import httpx
+from typing import Optional
 from melting_schemas.completion.fcall import RawFCallRequest, FCallCompletionCreationResponse
 
 from .. import TEIA_API_KEY, MELT_API_URL
@@ -17,10 +18,14 @@ class FCallCompletionsClient:
         return obj
 
     @classmethod
-    def create_one(cls, body: RawFCallRequest) -> FCallCompletionCreationResponse:
+    def create_one(cls, body: RawFCallRequest, user_email: Optional[str] = None) -> FCallCompletionCreationResponse:
+        headers = cls.get_headers()
+        if user_email:
+            headers["X-User-Email"] = user_email
+
         res = cls.client.post(
             f"{MELT_API_URL}{cls.relative_path}/create",
-            headers=cls.get_headers(),
+            headers=headers,
             json=body.dict(),
         )
         handle_erros(res)

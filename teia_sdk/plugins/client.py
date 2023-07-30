@@ -73,6 +73,10 @@ class PluginClient:
             raise exceptions.ErrorPluginAPISelectAndRun(
                 f"Request to {sel_run_url} timed out\nError: {ex}. "
             )
+        except Exception as ex:
+            raise exceptions.ErrorPluginAPISelectAndRun(
+                f"Request to {sel_run_url} did not work\nError: {ex}. "
+            )
 
         if plugins_data.status_code != http_status.HTTP_200_OK:
             raise exceptions.ErrorPluginAPISelectAndRun(
