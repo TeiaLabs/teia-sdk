@@ -1,5 +1,7 @@
 import os
 import httpx
+import logging
+from typing import Optional
 from starlette import status as http_status
 
 from . import exceptions
@@ -11,6 +13,8 @@ from .schemas import (
 )
 from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 
+
+logger = logging.getLogger(__name__)
 
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
@@ -48,6 +52,7 @@ class PluginClient:
         messages: list[ChatMLMessage],
         plugin_names: list[str],
         model_settings: FCallModelSettings,
+        user_email: Optional[str] = None
     ) -> PluginResponse:
         if not plugin_names:
             return PluginResponse(
@@ -63,12 +68,18 @@ class PluginClient:
         )
 
         sel_run_url = f"{PLUGINS_API_URL}/select-and-run-plugin"
+        headers = cls.get_headers()
+        if user_email:
+            headers["X-User-Email"] = user_email
+
+        logger.debug(f"Requesting {sel_run_url}. Args: {sp}. Headers: {headers}.")
         try:
             plugins_data = cls.client.post(
                 sel_run_url,
                 json=sp,
-                headers=cls.get_headers(),
+                headers=headers
             )
+            logger.debug(f"Request returned: {plugins_data}, {plugins_data.status_code}.")
         except httpx.ReadTimeout as ex:
             raise exceptions.ErrorPluginAPISelectAndRun(
                 f"Request to {sel_run_url} timed out\nError: {ex}. "
