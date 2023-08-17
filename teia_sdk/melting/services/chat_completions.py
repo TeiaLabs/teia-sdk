@@ -25,7 +25,9 @@ class CompletionClient:
         return obj
 
     @classmethod
-    def create_one(cls, body: dict, user_email: Optional[str] = None) -> ChatCompletionCreationResponse:
+    def create_one(
+        cls, body: dict, user_email: Optional[str] = None
+    ) -> ChatCompletionCreationResponse:
         headers = cls.get_headers()
         if user_email:
             headers["X-User-Email"] = user_email
@@ -49,14 +51,23 @@ class CompletionClient:
 
     @classmethod
     def stream_one(
-        cls, body: dict, user_email: Optional[str] = None
+        cls,
+        body: dict,
+        count_tokens: bool = False,
+        user_email: Optional[str] = None,
     ) -> tuple[str, Iterator[StreamedChatCompletionCreationResponse]]:
         headers = cls.get_headers()
+        if count_tokens:
+            headers["X-Count-Tokens"] = "true"
         if user_email:
             headers["X-User-Email"] = user_email
 
-        with httpx.stream(
-            "POST", f"{MELT_API_URL}{cls.relative_path}/stream", headers=headers, json=body
-        ) as res:
-            identifier = res.headers["Content-Location"].split("/")[-1]
-            return identifier, map(json.loads, res.iter_lines())
+        res = requests.post(
+            f"{MELT_API_URL}{cls.relative_path}/stream",
+            headers=headers,
+            json=body,
+            stream=True,
+        )
+        # TODO: use httpx stream instead of requests
+        identifier = res.headers["Content-Location"].split("/")[-1]
+        return identifier, map(json.loads, res.iter_lines())
