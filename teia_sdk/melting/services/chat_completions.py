@@ -34,6 +34,7 @@ class CompletionClient:
 
         res = httpx.post(
             f"{MELT_API_URL}{cls.relative_path}/create",
+            timeout=15,
             headers=headers,
             json=body,
         )

@@ -1,8 +1,8 @@
 import httpx
 from melting_schemas.encoding.text_encoding import RawTextEncoding, TextEncodingResponse
 
-from .. import TEIA_API_KEY, MELT_API_URL
 from ...utils import handle_erros
+from .. import MELT_API_URL, TEIA_API_KEY
 
 
 class TextEncodingClient:
@@ -19,6 +19,7 @@ class TextEncodingClient:
     def encode(cls, body: RawTextEncoding) -> TextEncodingResponse:
         res = httpx.post(
             f"{MELT_API_URL}{cls.relative_path}",
+            timeout=15,
             headers=cls.get_headers(),
             json=body,
         )
