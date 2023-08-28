@@ -21,7 +21,7 @@ class TextEncodingClient:
             f"{MELT_API_URL}{cls.relative_path}",
             timeout=15,
             headers=cls.get_headers(),
-            json=body,
+            json=body.dict(),
         )
         handle_erros(res)
         return res.json()
