@@ -5,7 +5,7 @@ from melting_schemas.templating import ChatPromptTemplate
 from melting_schemas.templating.prompt import ChatPrompt, GeneratedFields
 
 from ...utils import handle_erros
-from .. import TEIA_API_KEY, MELT_API_URL
+from .. import MELT_API_URL, TEIA_API_KEY
 
 
 class TemplatingClient:
@@ -41,7 +41,11 @@ class TemplatingClient:
 
     @classmethod
     def read_many(
-        cls, name: Optional[str], model: Optional[str], limit: int, skip: int
+        cls,
+        limit: int,
+        skip: int,
+        name: Optional[str] = None,
+        model: Optional[str] = None,
     ) -> list[ChatPrompt]:
         params = {"name": name, "settings.model": model, "$limit": limit, "$skip": skip}
         params = {k: v for k, v in params.items() if v is not None}
