@@ -1,4 +1,6 @@
+http_error_schemas>=0.1.0
 httpx
+melting_schemas>=1.0.1
 pydantic[email]<2
 python-dotenv
 requests
