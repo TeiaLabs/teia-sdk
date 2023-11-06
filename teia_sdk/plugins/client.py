@@ -52,7 +52,8 @@ class PluginClient:
         messages: list[ChatMLMessage],
         plugin_names: list[str],
         model_settings: FCallModelSettings,
-        user_email: Optional[str] = None
+        user_email: Optional[str] = None,
+        schemaless: bool = True,
     ) -> PluginResponse:
         if not plugin_names:
             return PluginResponse(
@@ -61,10 +62,16 @@ class PluginClient:
                 error=f"No plugins in plugin_names",
             )
 
+        plugin_extra_args = {
+            plugin_name: {
+                "schemaless": schemaless
+            } for plugin_name in plugin_names
+        }
         sp = SelectPlugin(
             messages=messages,
             plugin_names=plugin_names,
-            model_settings=model_settings
+            model_settings=model_settings,
+            plugin_extra_arguments=plugin_extra_args,
         )
 
         sel_run_url = f"{PLUGINS_API_URL}/select-and-run-plugin"

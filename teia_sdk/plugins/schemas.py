@@ -23,6 +23,7 @@ class SelectPlugin(TypedDict):
     messages: list[ChatMLMessage]
     plugin_names: list[str]
     model_settings: FCallModelSettings
+    plugin_extra_arguments: Optional[dict[str, dict]] = None
 
 
 class PluginUsage(TypedDict):
