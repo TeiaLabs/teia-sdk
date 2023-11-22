@@ -21,10 +21,11 @@ def ppjson(obj):
 def handle_erros(response: requests.Response | httpx.Response):
     try:
         response.raise_for_status()
-    except httpx.HTTPStatusError as e:
+    except (requests.HTTPError, httpx.HTTPStatusError) as e:
         exc = get_error_class(response.status_code)
-        ppjson(exc(**response.json()))
-        raise TeiaSdkError(response.json(), e.request, e.response) from e
+        obj = response.json()
+        ppjson(exc(**obj))
+        raise TeiaSdkError(obj, e.request, e.response) from e
     except (requests.RequestException, httpx.RequestError) as e:
         print(e.request)
         raise TeiaSdkError(response.json()) from e
