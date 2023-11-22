@@ -9,13 +9,15 @@ from melting_schemas.historian.chat_completions import (
     StreamedChatCompletionCreationResponse,
 )
 
+from ...exceptions import TeiaSdkError
 from ...utils import handle_erros
 from .. import MELT_API_URL, TEIA_API_KEY
 from ..schemas import ChatCompletionResponse
 
 
 class CompletionClient:
-    relative_path = "/historian/chat-completions"
+    relative_path = "/text-generation/chat-completions"
+    timeout = 60
 
     @classmethod
     def get_headers(cls) -> dict[str, str]:
@@ -34,7 +36,7 @@ class CompletionClient:
 
         res = httpx.post(
             f"{MELT_API_URL}{cls.relative_path}/create",
-            timeout=15,
+            timeout=cls.timeout,
             headers=headers,
             json=body,
         )
@@ -62,13 +64,16 @@ class CompletionClient:
             headers["X-Count-Tokens"] = "true"
         if user_email:
             headers["X-User-Email"] = user_email
-
+        # TODO: use httpx stream instead of requests
         res = requests.post(
             f"{MELT_API_URL}{cls.relative_path}/stream",
             headers=headers,
             json=body,
             stream=True,
         )
-        # TODO: use httpx stream instead of requests
+        try:
+            res.raise_for_status()
+        except requests.HTTPError as e:
+            raise TeiaSdkError(res.json()) from e
         identifier = res.headers["Content-Location"].split("/")[-1]
         return identifier, map(json.loads, res.iter_lines())
