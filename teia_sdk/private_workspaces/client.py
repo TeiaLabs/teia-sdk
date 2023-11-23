@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from typing import Optional
 from urllib.parse import quote
 
@@ -124,21 +125,18 @@ class PrivateWorkspaceClient:
 
     # TODO: filepath is redirecting the url - how can we fix this?
     @classmethod
-    def upload_file(cls, workspace_id: str, file_path: str) -> PrivateFile:
+    def upload_file(cls, workspace_id: str, file_path: Path) -> PrivateFile:
         """
         Uploads a file to be processed.
         """
-        with open(file_path, "rb") as f:
-            file = f.read()
-        encoded_file_path = quote(file_path)
-        print(encoded_file_path)
+        file = open(file_path, "rb")
+        print(type(file))
+        file = {"file": file}
 
-        print(file)
-
-        res = httpx.post(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/{encoded_file_path}/",
+        res = httpx.put(
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
             headers=cls.get_headers(),
-            data=file,
+            files=file,
         )
         handle_erros(res)
         return res.json()
@@ -227,7 +225,7 @@ class PrivateWorkspaceClient:
         Get information from an indexing process.
         """
         res = httpx.get(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/indexings/{indexing_id}/",
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/indexings/{indexing_id}",
             headers=cls.get_headers(),
         )
         handle_erros(res)
