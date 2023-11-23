@@ -2,6 +2,7 @@ import logging
 import os
 from pathlib import Path
 from typing import Optional
+from fastapi import UploadFile
 
 import httpx
 
@@ -40,14 +41,27 @@ class PrivateWorkspaceClient:
         return obj
 
     @classmethod
-    def replace_file(cls, workspace_id: str, file_path: str):
-        with open(file_path, "rb") as f:
-            file = f.read()
+    def upload_many_files(
+        cls,
+        workspace_id: str,
+        file_paths: Optional[list[Path]] = None,
+        files: Optional[list[UploadFile]] = None,
+    ):
+        """
+        Uploads files to be processed.
+        """
+        if files is None and file_paths is None:
+            raise ValueError("Either 'files' or 'file_paths' must be provided.")
+
+        if files is None:
+            files = []
+            for p in file_paths:
+                files.append(("files", open(p, "rb")))
 
         res = httpx.put(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/",
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files",
             headers=cls.get_headers(),
-            data=file,
+            files=files,
         )
         return res.json()
 
@@ -67,7 +81,7 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def get_private_workspaces(
+    def get_many_private_workspaces(
         cls,
         sort: Optional[str] = None,
         order: Optional[str] = None,
@@ -95,7 +109,7 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def get_datasource_files(cls, workspace_id: str) -> PrivateWorkspace:
+    def get_private_workspace(cls, workspace_id: str) -> PrivateWorkspace:
         """
         Get a private workspace.
         """
@@ -114,32 +128,15 @@ class PrivateWorkspaceClient:
         Show a specific file in a given private workspace.
         """
         res = httpx.get(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/{file_path}/",
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/{file_path}",
             headers=cls.get_headers(),
             params={"return_content": return_content},
         )
         handle_erros(res)
         return res.json()
 
-    # TODO: filepath is redirecting the url - how can we fix this?
     @classmethod
-    def upload_file(cls, workspace_id: str, file_path: Path) -> PrivateFile:
-        """
-        Uploads a file to be processed.
-        """
-        file = open(file_path, "rb")
-        file = {"file": file}
-
-        res = httpx.put(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
-            headers=cls.get_headers(),
-            files=file,
-        )
-        handle_erros(res)
-        return res.json()
-
-    @classmethod
-    def list_files(
+    def list_many_files(
         cls,
         workspace_id: str,
         file_path: Optional[str] = None,
@@ -174,28 +171,20 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def get_indexings(
-        cls,
-        workspace_id: str,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
-        sort: Optional[str] = None,
-        order: Optional[str] = None,
-    ) -> list[PrivateWorkspaceIndexing]:
+    def upload_file(
+        cls, workspace_id: str, file_path: Path, file: Optional[UploadFile] = None
+    ) -> PrivateFile:
         """
-        Get information from all indexing processes in a workspace.
+        Uploads a file to be processed.
         """
-        params = {
-            "limit": limit,
-            "offset": offset,
-            "sort": sort,
-            "order": order,
-        }
-        params = {k: v for k, v in params.items() if v is not None}
-        res = httpx.get(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/indexings/",
+        if file is None:
+            file = open(file_path, "rb")
+        file = {"file": file}
+
+        res = httpx.put(
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
             headers=cls.get_headers(),
-            params=params,
+            files=file,
         )
         handle_erros(res)
         return res.json()
@@ -229,6 +218,33 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
+    def get_many_indexings(
+        cls,
+        workspace_id: str,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        sort: Optional[str] = None,
+        order: Optional[str] = None,
+    ) -> list[PrivateWorkspaceIndexing]:
+        """
+        Get information from all indexing processes in a workspace.
+        """
+        params = {
+            "limit": limit,
+            "offset": offset,
+            "sort": sort,
+            "order": order,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        res = httpx.get(
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/indexings/",
+            headers=cls.get_headers(),
+            params=params,
+        )
+        handle_erros(res)
+        return res.json()
+
+    @classmethod
     def delete_private_workspace(cls, workspace_id: str):
         """
         Delete workspace and all resources related to it.
@@ -241,7 +257,7 @@ class PrivateWorkspaceClient:
         return res
 
     @classmethod
-    def search_workspace(
+    def search_on_workspace(
         cls,
         workspace_id: str,
         query: str,
