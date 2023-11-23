@@ -2,8 +2,6 @@ import logging
 import os
 from pathlib import Path
 from typing import Optional
-from urllib.parse import quote
-
 
 import httpx
 
@@ -130,7 +128,6 @@ class PrivateWorkspaceClient:
         Uploads a file to be processed.
         """
         file = open(file_path, "rb")
-        print(type(file))
         file = {"file": file}
 
         res = httpx.put(
@@ -237,7 +234,7 @@ class PrivateWorkspaceClient:
         Delete workspace and all resources related to it.
         """
         res = httpx.delete(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/",
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}",
             headers=cls.get_headers(),
         )
         handle_erros(res)
@@ -260,7 +257,7 @@ class PrivateWorkspaceClient:
             "schemaless": schemaless,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        res = httpx.get(
+        res = httpx.post(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/search/",
             headers=cls.get_headers(),
             params=params,
