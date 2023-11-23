@@ -190,6 +190,18 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
+    def delete_file(cls, workspace_id: str, file_path: str):
+        """
+        Delete a file from a private workspace.
+        """
+        res = httpx.delete(
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
+            headers=cls.get_headers(),
+        )
+        handle_erros(res)
+        return res
+
+    @classmethod
     def create_indexing(cls, workspace_id: str) -> PrivateWorkspaceIndexing:
         """
         Uploads a file to be processed.
