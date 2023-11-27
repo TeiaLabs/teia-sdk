@@ -130,7 +130,7 @@ class PrivateWorkspaceClient:
         Show a specific file in a given private workspace.
         """
         res = httpx.get(
-            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/{file_path}",
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
             headers=cls.get_headers(),
             params={"return_content": return_content},
         )
