@@ -31,7 +31,7 @@ except KeyError:
 
 
 class PrivateWorkspaceClient:
-    relative_path = "/workspaces"
+    relative_path = "/api/workspaces"
 
     @classmethod
     def get_headers(cls) -> dict[str, str]:
