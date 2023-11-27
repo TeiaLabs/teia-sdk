@@ -88,6 +88,7 @@ class PrivateWorkspaceClient:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
         workspace_id: Optional[str] = None,
+        name: Optional[str] = None,
     ) -> list[PrivateWorkspace]:
         """
         Retrieve a list of private workspaces.
@@ -98,6 +99,7 @@ class PrivateWorkspaceClient:
             "limit": limit,
             "offset": offset,
             "workspace_id": workspace_id,
+            "name": name,
         }
         params = {k: v for k, v in params.items() if v is not None}
         res = httpx.get(
