@@ -4,8 +4,13 @@ from pathlib import Path
 from typing import Optional
 from fastapi import UploadFile
 
+from starlette import status as http_status
 import httpx
 
+from .exceptions import (
+    PrivateWorkspaceFileNotFound,
+    PrivateWorkspaceNotFound,
+)
 from .schemas import (
     PrivateFile,
     PrivateWorkspace,
@@ -13,6 +18,7 @@ from .schemas import (
     PrivateWorkspaceCreationResponse,
     PrivateWorkspaceIndexing,
 )
+
 from ..utils import handle_erros
 
 
@@ -21,7 +27,7 @@ logger = logging.getLogger(__name__)
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
     DATASOURCES_API_URL = os.getenv(
-        "DATASOURCES_API_URL", "https://datasources.teialabs.com.br:3000/api"
+        "DATASOURCES_API_URL", "https://datasources.teialabs.com.br"
     )
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "
@@ -124,14 +130,17 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def get_private_workspace(cls, workspace_id: str) -> PrivateWorkspace:
+    def get_private_workspace(cls, workspace_id: str, user_email: Optional[str] = None) -> PrivateWorkspace:
         """
         Get a private workspace.
         """
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/",
-            headers=cls.get_headers(),
+            headers=headers,
         )
+        if res.status_code == http_status.HTTP_404_NOT_FOUND:
+            raise PrivateWorkspaceNotFound(f"Workspace '{workspace_id}' not found.")
         handle_erros(res)
         return res.json()
 
@@ -150,6 +159,9 @@ class PrivateWorkspaceClient:
             headers=cls.get_headers(),
             params={"return_content": return_content},
         )
+        if res.status_code == http_status.HTTP_404_NOT_FOUND:
+            raise PrivateWorkspaceFileNotFound(f"File '{file_path}' not found.")
+
         handle_erros(res)
         return res.json()
 
