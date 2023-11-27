@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
     DATASOURCES_API_URL = os.getenv(
-        "DATASOURCES_API_URL", "https://datasources.teialabs.com.br"
+        "DATASOURCES_API_URL", "https://datasources.teialabs.com.br:3000/api"
     )
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "
@@ -41,11 +41,19 @@ class PrivateWorkspaceClient:
         return obj
 
     @classmethod
+    def get_headers_with_user_email(cls, user_email: Optional[str] = None) -> dict:
+        headers = cls.get_headers()
+        if user_email is not None:
+            headers["user_email"] = user_email
+        return headers
+
+    @classmethod
     def upload_many_files(
         cls,
         workspace_id: str,
         file_paths: Optional[list[Path]] = None,
         files: Optional[list[UploadFile]] = None,
+        user_email: Optional[str] = None
     ):
         """
         Uploads files to be processed.
@@ -58,23 +66,26 @@ class PrivateWorkspaceClient:
             for p in file_paths:
                 files.append(("files", open(p, "rb")))
 
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.put(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files",
-            headers=cls.get_headers(),
+            headers=headers,
             files=files,
         )
         return res.json()
 
     @classmethod
     def create_private_workspace(
-        cls, workspace: PrivateWorkspaceCreationRequest
+        cls, workspace: PrivateWorkspaceCreationRequest,
+        user_email: Optional[str] = None
     ) -> PrivateWorkspaceCreationResponse:
         """
         Create a private workspace.
         """
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.post(
             f"{DATASOURCES_API_URL}{cls.relative_path}/",
-            headers=cls.get_headers(),
+            headers=headers,
             json=workspace,
         )
         handle_erros(res)
@@ -89,6 +100,7 @@ class PrivateWorkspaceClient:
         offset: Optional[int] = None,
         workspace_id: Optional[str] = None,
         name: Optional[str] = None,
+        user_email: Optional[str] = None,
     ) -> list[PrivateWorkspace]:
         """
         Retrieve a list of private workspaces.
@@ -102,9 +114,10 @@ class PrivateWorkspaceClient:
             "name": name,
         }
         params = {k: v for k, v in params.items() if v is not None}
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/",
-            headers=cls.get_headers(),
+            headers=headers,
             params=params,
         )
         handle_erros(res)
@@ -124,11 +137,14 @@ class PrivateWorkspaceClient:
 
     @classmethod
     def list_file(
-        cls, workspace_id: str, file_path: str, return_content: Optional[bool] = None
+        cls, workspace_id: str, file_path: str,
+        return_content: Optional[bool] = None,
+        user_email: Optional[str] = None
     ) -> PrivateFile:
         """
         Show a specific file in a given private workspace.
         """
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
             headers=cls.get_headers(),
@@ -149,6 +165,7 @@ class PrivateWorkspaceClient:
         offset: Optional[int] = None,
         sort: Optional[str] = None,
         order: Optional[str] = None,
+        user_email: Optional[str] = None,
     ) -> list[PrivateFile]:
         """
         Shows files in a given private workspace.
@@ -164,9 +181,10 @@ class PrivateWorkspaceClient:
             "order": order,
         }
         params = {k: v for k, v in params.items() if v is not None}
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/",
-            headers=cls.get_headers(),
+            headers=headers,
             params=params,
         )
         handle_erros(res)
@@ -174,7 +192,8 @@ class PrivateWorkspaceClient:
 
     @classmethod
     def upload_file(
-        cls, workspace_id: str, file_path: Path, file: Optional[UploadFile] = None
+        cls, workspace_id: str, file_path: Path, file: Optional[UploadFile] = None,
+        user_email: Optional[str] = None
     ) -> PrivateFile:
         """
         Uploads a file to be processed.
@@ -183,34 +202,37 @@ class PrivateWorkspaceClient:
             file = open(file_path, "rb")
         file = {"file": file}
 
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.put(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
-            headers=cls.get_headers(),
+            headers=headers,
             files=file,
         )
         handle_erros(res)
         return res.json()
 
     @classmethod
-    def delete_file(cls, workspace_id: str, file_path: str):
+    def delete_file(cls, workspace_id: str, file_path: str, user_email: Optional[str] = None):
         """
         Delete a file from a private workspace.
         """
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.delete(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
-            headers=cls.get_headers(),
+            headers=headers,
         )
         handle_erros(res)
         return res
 
     @classmethod
-    def create_indexing(cls, workspace_id: str) -> PrivateWorkspaceIndexing:
+    def create_indexing(cls, workspace_id: str, user_email: Optional[str] = None) -> PrivateWorkspaceIndexing:
         """
         Uploads a file to be processed.
         """
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.post(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/indexings/",
-            headers=cls.get_headers(),
+            headers=headers,
         )
         handle_erros(res)
         return res.json()
@@ -220,13 +242,15 @@ class PrivateWorkspaceClient:
         cls,
         workspace_id: str,
         indexing_id: str,
+        user_email: Optional[str] = None,
     ) -> PrivateWorkspaceIndexing:
         """
         Get information from an indexing process.
         """
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/indexings/{indexing_id}",
-            headers=cls.get_headers(),
+            headers=headers,
         )
         handle_erros(res)
         return res.json()
@@ -239,6 +263,7 @@ class PrivateWorkspaceClient:
         offset: Optional[int] = None,
         sort: Optional[str] = None,
         order: Optional[str] = None,
+        user_email: Optional[str] = None,
     ) -> list[PrivateWorkspaceIndexing]:
         """
         Get information from all indexing processes in a workspace.
@@ -250,22 +275,24 @@ class PrivateWorkspaceClient:
             "order": order,
         }
         params = {k: v for k, v in params.items() if v is not None}
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/indexings/",
-            headers=cls.get_headers(),
+            headers=headers,
             params=params,
         )
         handle_erros(res)
         return res.json()
 
     @classmethod
-    def delete_private_workspace(cls, workspace_id: str):
+    def delete_private_workspace(cls, workspace_id: str, user_email: Optional[str] = None):
         """
         Delete workspace and all resources related to it.
         """
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.delete(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}",
-            headers=cls.get_headers(),
+            headers=headers,
         )
         handle_erros(res)
         return res
@@ -277,6 +304,7 @@ class PrivateWorkspaceClient:
         query: str,
         num_results: Optional[int] = None,
         schemaless: Optional[bool] = None,
+        user_email: Optional[str] = None,
     ) -> list[dict]:
         """
         Perform an embedding search in a private workspace.
@@ -287,9 +315,10 @@ class PrivateWorkspaceClient:
             "schemaless": schemaless,
         }
         params = {k: v for k, v in params.items() if v is not None}
+        headers = cls.get_headers_with_user_email(user_email)
         res = httpx.post(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/search/",
-            headers=cls.get_headers(),
+            headers=headers,
             params=params,
         )
         handle_erros(res)
