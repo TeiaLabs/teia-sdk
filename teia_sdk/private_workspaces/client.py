@@ -50,7 +50,7 @@ class PrivateWorkspaceClient:
     def get_headers_with_user_email(cls, user_email: Optional[str] = None) -> dict:
         headers = cls.get_headers()
         if user_email is not None:
-            headers["user_email"] = user_email
+            headers["X-User-Email"] = user_email
         return headers
 
     @classmethod
@@ -59,7 +59,7 @@ class PrivateWorkspaceClient:
         workspace_id: str,
         file_paths: Optional[list[Path]] = None,
         files: Optional[list[UploadFile]] = None,
-        user_email: Optional[str] = None
+        user_email: Optional[str] = None,
     ):
         """
         Uploads files to be processed.
@@ -82,8 +82,9 @@ class PrivateWorkspaceClient:
 
     @classmethod
     def create_private_workspace(
-        cls, workspace: PrivateWorkspaceCreationRequest,
-        user_email: Optional[str] = None
+        cls,
+        workspace: PrivateWorkspaceCreationRequest,
+        user_email: Optional[str] = None,
     ) -> PrivateWorkspaceCreationResponse:
         """
         Create a private workspace.
@@ -130,7 +131,9 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def get_private_workspace(cls, workspace_id: str, user_email: Optional[str] = None) -> PrivateWorkspace:
+    def get_private_workspace(
+        cls, workspace_id: str, user_email: Optional[str] = None
+    ) -> PrivateWorkspace:
         """
         Get a private workspace.
         """
@@ -146,9 +149,11 @@ class PrivateWorkspaceClient:
 
     @classmethod
     def list_file(
-        cls, workspace_id: str, file_path: str,
-        return_content: Optional[bool] = None,
-        user_email: Optional[str] = None
+        cls,
+        workspace_id: str,
+        file_path: str,
+        return_file_content: Optional[bool] = None,
+        user_email: Optional[str] = None,
     ) -> PrivateFile:
         """
         Show a specific file in a given private workspace.
@@ -157,7 +162,7 @@ class PrivateWorkspaceClient:
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
             headers=cls.get_headers(),
-            params={"return_content": return_content},
+            params={"return_content": return_file_content},
         )
         if res.status_code == http_status.HTTP_404_NOT_FOUND:
             raise PrivateWorkspaceFileNotFound(f"File '{file_path}' not found.")
