@@ -161,7 +161,7 @@ class PrivateWorkspaceClient:
         headers = cls.get_headers_with_user_email(user_email)
         res = httpx.get(
             f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/files/{file_path}",
-            headers=cls.get_headers(),
+            headers=headers,
             params={"return_content": return_file_content},
         )
         if res.status_code == http_status.HTTP_404_NOT_FOUND:
