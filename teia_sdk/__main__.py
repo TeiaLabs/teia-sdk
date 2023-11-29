@@ -3,6 +3,7 @@ import typer
 from .melting import chat_prompts
 from .search import search
 from .plugins import plugins
+from .private_workspaces import private_workspaces
 
 
 def main():
