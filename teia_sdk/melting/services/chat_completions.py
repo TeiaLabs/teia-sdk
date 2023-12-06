@@ -38,7 +38,7 @@ class CompletionClient:
         user_email: Optional[str] = None,
     ) -> ChatCompletionCreationResponse:
         if not isinstance(body, dict):
-            body = body.dict()
+            body = body.dict(exclude_none=True)
 
         headers = cls.get_headers()
         if user_email:
@@ -65,10 +65,15 @@ class CompletionClient:
     @classmethod
     def stream_one(
         cls,
-        body: dict,
+        body: ChatCompletionRequest
+        | RawChatCompletionRequest
+        | HybridChatCompletionRequest,
         count_tokens: bool = False,
         user_email: Optional[str] = None,
     ) -> tuple[str, Iterator[StreamedChatCompletionCreationResponse]]:
+        if not isinstance(body, dict):
+            body = body.dict(exclude_none=True)
+
         headers = cls.get_headers()
         if count_tokens:
             headers["X-Count-Tokens"] = "true"
