@@ -6,6 +6,9 @@ import httpx
 import requests
 from melting_schemas.historian.chat_completions import (
     ChatCompletionCreationResponse,
+    ChatCompletionRequest,
+    HybridChatCompletionRequest,
+    RawChatCompletionRequest,
     StreamedChatCompletionCreationResponse,
 )
 
@@ -28,8 +31,15 @@ class CompletionClient:
 
     @classmethod
     def create_one(
-        cls, body: dict, user_email: Optional[str] = None
+        cls,
+        body: ChatCompletionRequest
+        | RawChatCompletionRequest
+        | HybridChatCompletionRequest,
+        user_email: Optional[str] = None,
     ) -> ChatCompletionCreationResponse:
+        if not isinstance(body, dict):
+            body = body.dict(exclude_none=True)
+
         headers = cls.get_headers()
         if user_email:
             headers["X-User-Email"] = user_email
@@ -55,10 +65,15 @@ class CompletionClient:
     @classmethod
     def stream_one(
         cls,
-        body: dict,
+        body: ChatCompletionRequest
+        | RawChatCompletionRequest
+        | HybridChatCompletionRequest,
         count_tokens: bool = False,
         user_email: Optional[str] = None,
     ) -> tuple[str, Iterator[StreamedChatCompletionCreationResponse]]:
+        if not isinstance(body, dict):
+            body = body.dict(exclude_none=True)
+
         headers = cls.get_headers()
         if count_tokens:
             headers["X-Count-Tokens"] = "true"
