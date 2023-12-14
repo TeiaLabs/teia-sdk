@@ -1,20 +1,20 @@
-import os
-import httpx
 import logging
+import os
 from typing import Optional
+
+import httpx
+from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 from starlette import status as http_status
 
 from . import exceptions
 from .schemas import (
     GetPluginExecution,
     GetPluginSelection,
+    PluginInfo,
     PluginResponse,
     PluginUsage,
-    PluginInfo,
     SelectPlugin,
 )
-from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
-
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +65,7 @@ class PluginClient:
             )
 
         plugin_extra_args = {
-            plugin_name: {
-                "schemaless": schemaless
-            } for plugin_name in plugin_names
+            plugin_name: {"schemaless": schemaless} for plugin_name in plugin_names
         }
         sp = SelectPlugin(
             messages=messages,
@@ -83,12 +81,10 @@ class PluginClient:
 
         logger.debug(f"Requesting {sel_run_url}. Args: {sp}. Headers: {headers}.")
         try:
-            plugins_data = cls.client.post(
-                sel_run_url,
-                json=sp,
-                headers=headers
+            plugins_data = cls.client.post(sel_run_url, json=sp, headers=headers)
+            logger.debug(
+                f"Request returned: {plugins_data}, {plugins_data.status_code}."
             )
-            logger.debug(f"Request returned: {plugins_data}, {plugins_data.status_code}.")
         except httpx.ReadTimeout as ex:
             raise exceptions.ErrorPluginAPISelectAndRun(
                 f"Request to {sel_run_url} timed out\nError: {ex}. "
@@ -147,6 +143,7 @@ class PluginClient:
             f"{PLUGINS_API_URL}/run-plugin",
             json=plugin_calls,
             headers=cls.get_headers(),
+            timeout=120,
         )
 
         plugin_data.raise_for_status()
