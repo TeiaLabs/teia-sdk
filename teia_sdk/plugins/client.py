@@ -1,9 +1,10 @@
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
 
 import httpx
 from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
+
 from starlette import status as http_status
 
 from . import exceptions
@@ -41,7 +42,7 @@ class PluginClient:
         return obj
 
     @classmethod
-    def available_plugins(cls) -> dict[str, dict]:
+    def available_plugins(cls) -> dict[str, dict[str, Any]]:
         res = httpx.get(
             f"{PLUGINS_API_URL}/available",
             headers=cls.get_headers(),
@@ -54,6 +55,7 @@ class PluginClient:
         messages: list[ChatMLMessage],
         plugin_names: list[str],
         model_settings: FCallModelSettings,
+        plugin_extra_args: Optional[dict[str, dict[str, str]]] = None,
         user_email: Optional[str] = None,
         schemaless: bool = True,
     ) -> PluginResponse:
@@ -64,9 +66,14 @@ class PluginClient:
                 error=f"No plugins in plugin_names",
             )
 
-        plugin_extra_args = {
-            plugin_name: {"schemaless": schemaless} for plugin_name in plugin_names
-        }
+        if plugin_extra_args is None:
+            plugin_extra_args = {}
+        plugin_extra_args.update({
+            plugin_name: {
+                "schemaless": schemaless
+            } for plugin_name in plugin_names
+        })
+
         sp = SelectPlugin(
             messages=messages,
             plugin_names=plugin_names,

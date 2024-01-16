@@ -1,12 +1,12 @@
-from typing import Optional, TypedDict
+from typing import Any, Optional, TypedDict
 from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 
 
 class PluginInfo(TypedDict):
     name: str
     method: str
-    params: dict
-    response: str | dict
+    params: dict[str, Any]
+    response: str | dict[str, Any]
     error: str
     response_time: int
 
@@ -23,19 +23,19 @@ class SelectPlugin(TypedDict):
     messages: list[ChatMLMessage]
     plugin_names: list[str]
     model_settings: FCallModelSettings
-    plugin_extra_arguments: dict[str, dict]
+    plugin_extra_arguments: dict[str, dict[str, str]]
 
 
 class PluginUsage(TypedDict):
     plugin: str
     method: str
-    arguments: dict
+    arguments: dict[str, Any]
 
 
 class PluginCall(TypedDict):
     plugin: str
     method: str
-    arguments: dict
+    arguments: dict[str, Any]
 
 
 class GetPluginSelection(TypedDict):

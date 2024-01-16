@@ -21,9 +21,6 @@ from .schemas import (
 
 from ..utils import handle_erros
 
-
-logger = logging.getLogger(__name__)
-
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
     DATASOURCES_API_URL = os.getenv(
@@ -47,7 +44,7 @@ class PrivateWorkspaceClient:
         return obj
 
     @classmethod
-    def get_headers_with_user_email(cls, user_email: Optional[str] = None) -> dict:
+    def get_headers_with_user_email(cls, user_email: Optional[str] = None) -> dict[str, str]:
         headers = cls.get_headers()
         if user_email is not None:
             headers["X-User-Email"] = user_email
@@ -151,7 +148,7 @@ class PrivateWorkspaceClient:
     def list_file(
         cls,
         workspace_id: str,
-        file_path: str,
+        file_path: str | Path,
         return_file_content: Optional[bool] = None,
         user_email: Optional[str] = None,
     ) -> PrivateFile:
@@ -229,7 +226,7 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def delete_file(cls, workspace_id: str, file_path: str, user_email: Optional[str] = None):
+    def delete_file(cls, workspace_id: str, file_path: str | Path, user_email: Optional[str] = None):
         """
         Delete a file from a private workspace.
         """
