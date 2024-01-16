@@ -59,15 +59,19 @@ class PluginClient:
         user_email: Optional[str] = None,
         schemaless: bool = True,
     ) -> PluginResponse:
+
         if not plugin_names:
             return PluginResponse(
+                plugin_selection_id="",
+                plugin_execution_id="",
                 selector_completion="",
-                plugin_infos=[],
+                # plugin_infos=None,
                 error=f"No plugins in plugin_names",
             )
 
         if plugin_extra_args is None:
             plugin_extra_args = {}
+
         plugin_extra_args.update({
             plugin_name: {
                 "schemaless": schemaless
