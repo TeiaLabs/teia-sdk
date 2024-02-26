@@ -17,6 +17,7 @@ from .schemas import (
     PrivateWorkspaceCreationRequest,
     PrivateWorkspaceCreationResponse,
     PrivateWorkspaceIndexing,
+    FileSearchOut,
 )
 
 from ..utils import handle_erros
@@ -44,7 +45,9 @@ class PrivateWorkspaceClient:
         return obj
 
     @classmethod
-    def get_headers_with_user_email(cls, user_email: Optional[str] = None) -> dict[str, str]:
+    def get_headers_with_user_email(
+        cls, user_email: Optional[str] = None
+    ) -> dict[str, str]:
         headers = cls.get_headers()
         if user_email is not None:
             headers["X-User-Email"] = user_email
@@ -206,8 +209,11 @@ class PrivateWorkspaceClient:
 
     @classmethod
     def upload_file(
-        cls, workspace_id: str, file_path: Path, file: Optional[UploadFile] = None,
-        user_email: Optional[str] = None
+        cls,
+        workspace_id: str,
+        file_path: Path,
+        file: Optional[UploadFile] = None,
+        user_email: Optional[str] = None,
     ) -> PrivateFile:
         """
         Uploads a file to be processed.
@@ -226,7 +232,9 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def delete_file(cls, workspace_id: str, file_path: str | Path, user_email: Optional[str] = None):
+    def delete_file(
+        cls, workspace_id: str, file_path: str | Path, user_email: Optional[str] = None
+    ):
         """
         Delete a file from a private workspace.
         """
@@ -239,7 +247,9 @@ class PrivateWorkspaceClient:
         return res
 
     @classmethod
-    def create_indexing(cls, workspace_id: str, user_email: Optional[str] = None) -> PrivateWorkspaceIndexing:
+    def create_indexing(
+        cls, workspace_id: str, user_email: Optional[str] = None
+    ) -> PrivateWorkspaceIndexing:
         """
         Uploads a file to be processed.
         """
@@ -299,7 +309,9 @@ class PrivateWorkspaceClient:
         return res.json()
 
     @classmethod
-    def delete_private_workspace(cls, workspace_id: str, user_email: Optional[str] = None):
+    def delete_private_workspace(
+        cls, workspace_id: str, user_email: Optional[str] = None
+    ):
         """
         Delete workspace and all resources related to it.
         """
@@ -335,5 +347,31 @@ class PrivateWorkspaceClient:
             headers=headers,
             params=params,
         )
+        handle_erros(res)
+        return res.json()
+
+    @classmethod
+    def keyword_search_on_files(
+        cls,
+        workspace_id: str,
+        query: str,
+        max_snippet_tokens: int,
+        user_email: Optional[str] = None,
+    ) -> FileSearchOut:
+        """
+        Perform a keyword (extracted from the query) based search on files in a private workspace.
+        The most relevant snippet (size defined my max_tokens) is returned.
+        """
+        params = {
+            "query": query,
+            "max_snippet_tokens": max_snippet_tokens,
+        }
+        headers = cls.get_headers_with_user_email(user_email)
+        res = httpx.post(
+            f"{DATASOURCES_API_URL}{cls.relative_path}/{workspace_id}/search/file/",
+            headers=headers,
+            params=params,
+        )
+
         handle_erros(res)
         return res.json()

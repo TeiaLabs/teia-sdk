@@ -56,3 +56,7 @@ class PrivateWorkspaceIndexing(TypedDict):
     id: str
     workspace_id: str
     operations: NotRequired[list[IndexingOperation]]
+
+
+class FileSearchOut(TypedDict):
+    snippet: str
