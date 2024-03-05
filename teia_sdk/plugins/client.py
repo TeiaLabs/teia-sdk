@@ -59,6 +59,7 @@ class PluginClient:
         user_email: Optional[str] = None,
         schemaless: bool = True,
     ) -> PluginResponse:
+
         if not plugin_names:
             return PluginResponse(
                 selector_completion="",
@@ -68,11 +69,8 @@ class PluginClient:
 
         if plugin_extra_args is None:
             plugin_extra_args = {}
-        plugin_extra_args.update({
-            plugin_name: {
-                "schemaless": schemaless
-            } for plugin_name in plugin_names
-        })
+        for plugin in plugin_extra_args:
+            plugin_extra_args[plugin]["schemaless"] = schemaless
 
         sp = SelectPlugin(
             messages=messages,
