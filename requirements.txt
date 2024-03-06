@@ -1,8 +1,8 @@
+fastapi
 http_error_schemas==1.0.1
 httpx
 melting_schemas==1.0.7
 python-dotenv
 requests
 rich
-starlette
 typer[all]
