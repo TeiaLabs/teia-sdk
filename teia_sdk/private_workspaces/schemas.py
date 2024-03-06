@@ -1,8 +1,8 @@
 import datetime
-from typing import NotRequired, TypedDict
 from pathlib import Path
+from typing import NotRequired, TypedDict
 
-from tauth.schemas import Creator
+from melting_schemas.meta import Creator
 
 
 class IndexingSettings(TypedDict):
@@ -16,7 +16,7 @@ class PrivateWorkspaceCreationRequest(TypedDict):
 
 
 class PrivateWorkspaceCreationResponse(PrivateWorkspaceCreationRequest):
-    created_at: datetime
+    created_at: datetime.datetime
     created_by: Creator
     workspace_id: str
 
@@ -42,7 +42,7 @@ class PrivateFile(TypedDict):
 
 
 class OperationExecution(TypedDict):
-    created_at: datetime
+    created_at: datetime.datetime
     message: NotRequired[str]
     status: str
 
