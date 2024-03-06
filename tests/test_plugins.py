@@ -1,7 +1,8 @@
 import pytest
+
 from teia_sdk import PluginClient
+from teia_sdk.plugins.schemas import ChatMLMessage, FCallModelSettings
 from teia_sdk.utils import ppjson
-from teia_sdk.plugins.schemas import FCallModelSettings, ChatMLMessage
 
 
 class TestPluginsClient:
@@ -14,7 +15,7 @@ class TestPluginsClient:
 
     def test_select_and_run_plugin(self, client: PluginClient):
         response = client.select_and_run_plugin(
-            model_settings=FCallModelSettings(model="gpt-3.5-turbo-0613"),
+            model_settings=FCallModelSettings(model="gpt-3.5-turbo-1106"),
             messages=[ChatMLMessage(role="user", content="Who is Simion Petrov?")],
             plugin_names=["internal_search"],
         )
@@ -23,7 +24,7 @@ class TestPluginsClient:
 
     def test_select_plugin(self, client: PluginClient):
         response = client.run_selector(
-            model_settings=FCallModelSettings(model="gpt-3.5-turbo-0613"),
+            model_settings=FCallModelSettings(model="gpt-3.5-turbo-1106"),
             messages=[ChatMLMessage(role="user", content="Who is Simion Petrov?")],
             plugin_names=["internal_search"],
         )
@@ -41,4 +42,5 @@ class TestPluginsClient:
         ]
         response = client.run_plugins(plugin_calls=plugin_calls)
         assert "Monica Pastor" in response["plugin_infos"][0]["params"]["query"]
+        assert response["plugin_infos"][0]["name"] == "internal_search"
         assert response["plugin_infos"][0]["name"] == "internal_search"
