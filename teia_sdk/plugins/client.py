@@ -21,9 +21,7 @@ logger = logging.getLogger(__name__)
 
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
-    PLUGINS_API_URL = os.getenv(
-        "PLUGINS_API_URL", "https://plugins.athena.teialabs.com.br"
-    )
+    PLUGINS_API_URL = os.getenv("PLUGINS_API_URL", "https://plugins.allai.digital")
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "
     m += "[yellow]'TEIA_API_KEY'[/yellow] cannot be empty."
