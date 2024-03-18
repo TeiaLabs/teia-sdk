@@ -30,7 +30,7 @@ except KeyError:
 
 
 class PluginClient:
-    client = httpx.Client(timeout=120)
+    client = httpx.Client(timeout=300)
 
     @classmethod
     def get_headers(cls) -> dict[str, str]:
