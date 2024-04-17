@@ -150,6 +150,9 @@ class PluginClient:
         if user_email:
             headers["X-User-Email"] = user_email
 
+        headers["X-Selection-Id"] = True
+        headers["X-Execution-Id"] = True
+
         logger.debug(f"Requesting {sel_run_url}. Args: {sp}. Headers: {headers}.")
 
         res = requests.post(
