@@ -2,8 +2,9 @@ import os
 from typing import Optional
 
 import httpx
-from dbsailor_schemas.connection import Connection
 from starlette import status as s
+
+from .schemas import Connection
 
 
 class DbsailorClient:
