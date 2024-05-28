@@ -1,4 +1,5 @@
-from typing import Any, Optional, TypedDict
+from typing import Any, Literal, Optional, TypedDict
+
 from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 
 
@@ -24,6 +25,7 @@ class SelectPlugin(TypedDict):
     plugin_names: list[str]
     model_settings: FCallModelSettings
     plugin_extra_arguments: dict[str, dict[str, str]]
+    tool_choice: Optional[Literal["auto", "required"] | dict]
 
 
 class PluginUsage(TypedDict):

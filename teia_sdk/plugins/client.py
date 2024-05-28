@@ -1,10 +1,9 @@
 import logging
 import os
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 import httpx
 from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
-
 from starlette import status as http_status
 
 from . import exceptions
@@ -58,6 +57,7 @@ class PluginClient:
         plugin_extra_args: Optional[dict[str, dict[str, str]]] = None,
         user_email: Optional[str] = None,
         schemaless: bool = True,
+        tool_choice: Optional[Literal["auto", "required"] | dict] = "auto",
     ) -> PluginResponse:
 
         if not plugin_names:
@@ -77,6 +77,7 @@ class PluginClient:
             plugin_names=plugin_names,
             model_settings=model_settings,
             plugin_extra_arguments=plugin_extra_args,
+            tool_choice=tool_choice,
         )
 
         sel_run_url = f"{PLUGINS_API_URL}/select-and-run-plugin"

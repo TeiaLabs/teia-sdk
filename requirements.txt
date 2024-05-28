@@ -1,7 +1,7 @@
 fastapi
 http_error_schemas==1.0.1
 httpx
-melting_schemas==1.0.7
+melting_schemas==1.0.9
 python-dotenv
 requests
 rich
