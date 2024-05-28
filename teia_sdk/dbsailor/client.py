@@ -15,7 +15,7 @@ class DbsailorClient:
         api_key: Optional[str] = os.getenv("TEIA_API_KEY", None),
         url: str = os.getenv(
             "DBSAILOR_URL",
-            "https://dbsailor-api-prod-alb-1466075297.us-east-1.elb.amazonaws.com",
+            "https://dbsailor.allai.digital",
         ),
     ):
         if api_key is None:
