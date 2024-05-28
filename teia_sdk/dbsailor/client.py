@@ -48,8 +48,21 @@ class DbsailorClient:
         res.raise_for_status()
         return res.json()
 
-    def read_many_connections(self):
-        res = self.http_client.get("/connections")
+    def read_many_connections(
+        self,
+        sort: Optional[str] = "created_at",
+        order: Optional[str] = "desc",
+        offset: Optional[int] = 0,
+        limit: Optional[int] = 1024,
+        filter_by_service: str | None = None,
+    ):
+
+        params = {"$sort": sort, "$order": order, "$offset": offset, "$limit": limit}
+
+        if filter_by_service:
+            params["filter_by_service"] = filter_by_service
+
+        res = self.http_client.get("/connections", params=params)
         self.handle_errors(res)
         res.raise_for_status()
         return res.json()
