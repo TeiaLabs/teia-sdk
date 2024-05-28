@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Literal, Optional
 
 import httpx
 from starlette import status as s
@@ -50,22 +50,31 @@ class DbsailorClient:
 
     def read_many_connections(
         self,
+        name_startswith: Optional[str],
+        type: Optional[Literal["atlas", "milvus"]],
+        service_name: Optional[str],
+        entity_name: Optional[str],
         sort: Optional[str] = "created_at",
         order: Optional[str] = "desc",
         offset: Optional[int] = 0,
         limit: Optional[int] = 1024,
-        filter_by_service: str | None = None,
     ):
 
-        params = {"$sort": sort, "$order": order, "$offset": offset, "$limit": limit}
-
-        if filter_by_service:
-            params["filter_by_service"] = filter_by_service
+        params = {
+            "name_startswith": name_startswith,
+            "type": type,
+            "service_name": service_name,
+            "entity_name": entity_name,
+            "$sort": sort,
+            "$order": order,
+            "$offset": offset,
+            "$limit": limit,
+        }
 
         res = self.http_client.get("/connections", params=params)
         self.handle_errors(res)
         res.raise_for_status()
-        return res.json()
+        return [Connection(**x) for x in res.json()]
 
     def read_connection(self, name: str):
         res = self.http_client.get(f"/connections{name}")
