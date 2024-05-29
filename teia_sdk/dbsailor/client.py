@@ -50,10 +50,10 @@ class DbsailorClient:
 
     def read_many_connections(
         self,
-        name_startswith: Optional[str],
-        type: Optional[Literal["atlas", "milvus"]],
-        service_name: Optional[str],
-        entity_name: Optional[str],
+        name_startswith: Optional[str] = None,
+        type: Optional[Literal["atlas", "milvus"]] = None,
+        service_name: Optional[str] = None,
+        entity_name: Optional[str] = None,
         sort: Optional[str] = "created_at",
         order: Optional[str] = "desc",
         offset: Optional[int] = 0,
