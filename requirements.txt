@@ -1,4 +1,4 @@
-fastapi==0.111.0
+fastapi>=0.98,<0.99
 http_error_schemas==1.0.1
 melting_schemas==1.0.9
 httpx==0.27.0
