@@ -1,8 +1,10 @@
+import json
 import logging
 import os
 from typing import Any, Literal, Optional
 
 import httpx
+import requests
 from melting_schemas.completion.fcall import ChatMLMessage, FCallModelSettings
 from starlette import status as http_status
 
@@ -20,9 +22,7 @@ logger = logging.getLogger(__name__)
 
 try:
     TEIA_API_KEY = os.environ["TEIA_API_KEY"]
-    PLUGINS_API_URL = os.getenv(
-        "PLUGINS_API_URL", "https://plugins.athena.teialabs.com.br"
-    )
+    PLUGINS_API_URL = os.getenv("PLUGINS_API_URL", "https://plugins.allai.digital")
 except KeyError:
     m = "[red]MissingEnvironmentVariables[/red]: "
     m += "[yellow]'TEIA_API_KEY'[/yellow] cannot be empty."
@@ -31,7 +31,7 @@ except KeyError:
 
 
 class PluginClient:
-    client = httpx.Client(timeout=120)
+    client = httpx.Client(timeout=300)
 
     @classmethod
     def get_headers(cls) -> dict[str, str]:
@@ -118,6 +118,58 @@ class PluginClient:
         plugins_data = PluginResponse(**plugins_data)
 
         return plugins_data
+
+    @classmethod
+    def select_and_run_plugins_stream(
+        cls,
+        messages: list[ChatMLMessage],
+        plugin_names: list[str],
+        model_settings: FCallModelSettings,
+        plugin_extra_args: Optional[dict[str, dict[str, str]]] = None,
+        user_email: Optional[str] = None,
+        schemaless: bool = True,
+    ):
+        if not plugin_names:
+            return PluginResponse(
+                selector_completion="",
+                plugin_infos=[],
+                error=f"No plugins in plugin_names",
+            )
+
+        if plugin_extra_args is None:
+            plugin_extra_args = {}
+        for plugin in plugin_extra_args:
+            plugin_extra_args[plugin]["schemaless"] = schemaless
+
+        sp = SelectPlugin(
+            messages=messages,
+            plugin_names=plugin_names,
+            model_settings=model_settings,
+            plugin_extra_arguments=plugin_extra_args,
+        )
+        sel_run_url = f"{PLUGINS_API_URL}/select-and-run-stream-plugin"
+        headers = cls.get_headers()
+        if user_email:
+            headers["X-User-Email"] = user_email
+
+        headers["X-Selection-Id"] = "True"
+        headers["X-Execution-Id"] = "True"
+
+        logger.debug(f"Requesting {sel_run_url}. Args: {sp}. Headers: {headers}.")
+
+        res = requests.post(
+            sel_run_url,
+            json=sp,
+            headers=headers,
+            stream=True,
+        )
+        try:
+            res.raise_for_status()
+        except requests.HTTPError as e:
+            raise exceptions.ErrorPluginAPISelectAndRun(
+                f"Request to {sel_run_url} did not work\nError: {e}. "
+            )
+        return map(json.loads, res.iter_lines())
 
     @classmethod
     def run_selector(
