@@ -1,7 +1,7 @@
 import httpx
 from typing import Optional
 from melting_schemas.completion.tcall import (
-    RawTCallRequest,
+    TCallRequest,
     TCallCompletionCreationResponse,
 )
 
@@ -22,7 +22,7 @@ class TCallCompletionsClient:
 
     @classmethod
     def create_one(
-        cls, body: RawTCallRequest, user_email: Optional[str] = None
+        cls, body: TCallRequest, user_email: Optional[str] = None
     ) -> TCallCompletionCreationResponse:
         headers = cls.get_headers()
         if user_email:
