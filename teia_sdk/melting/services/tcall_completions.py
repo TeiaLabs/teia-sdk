@@ -24,6 +24,9 @@ class TCallCompletionsClient:
     def create_one(
         cls, body: TCallRequest, user_email: Optional[str] = None
     ) -> TCallCompletionCreationResponse:
+        if not isinstance(body, dict):
+            body = body.dict(exclude_none=True)
+
         headers = cls.get_headers()
         if user_email:
             headers["X-User-Email"] = user_email
@@ -31,7 +34,7 @@ class TCallCompletionsClient:
         res = cls.client.post(
             f"{MELT_API_URL}{cls.relative_path}/create",
             headers=headers,
-            json=body.dict(),
+            json=body,
         )
         handle_erros(res)
         return res.json()
