@@ -1,12 +1,22 @@
-import httpx
-from typing import Optional
-from melting_schemas.completion.tcall import (
-    TCallRequest,
-    TCallCompletionCreationResponse,
-)
+import json
+from typing import Iterator, Optional
 
-from .. import TEIA_API_KEY, MELT_API_URL
+import httpx
+import requests
+from melting_schemas.completion.tcall import (
+    ChatChunk,
+    TCallCompletionCreationResponse,
+    TCallRequest,
+    ToolCallChunk,
+    ToolCallMLMessage,
+)
+from melting_schemas.utils import UsageInfo
+
+from ...exceptions import TeiaSdkError
 from ...utils import handle_erros
+from .. import MELT_API_URL, TEIA_API_KEY
+
+STREAM_MESSAGE = ToolCallMLMessage | ToolCallChunk | ChatChunk | UsageInfo
 
 
 class TCallCompletionsClient:
@@ -35,3 +45,32 @@ class TCallCompletionsClient:
         )
         handle_erros(res)
         return res.json()
+
+    @classmethod
+    def stream_one(
+        cls,
+        body: TCallRequest,
+        count_tokens: bool = False,
+        user_email: Optional[str] = None,
+    ) -> tuple[str, Iterator[STREAM_MESSAGE]]:
+        if not isinstance(body, dict):
+            body = body.dict(exclude_none=True)
+
+        headers = cls.get_headers()
+        if count_tokens:
+            headers["X-Count-Tokens"] = "true"
+        if user_email:
+            headers["X-User-Email"] = user_email
+
+        res = requests.post(
+            url=f"{MELT_API_URL}{cls.relative_path}/stream",
+            headers=headers,
+            json=body,
+            stream=True,
+        )
+        try:
+            res.raise_for_status()
+        except requests.HTTPError as e:
+            raise TeiaSdkError(res.json()) from e
+        identifier = res.headers["Content-Location"].split("/")[-1]
+        return identifier, map(json.loads, res.iter_lines())
