@@ -1,6 +1,6 @@
 fastapi
 http_error_schemas
-melting_schemas==1.0.10
+melting_schemas==1.0.12
 httpx
 python-dotenv
 requests
