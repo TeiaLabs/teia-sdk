@@ -50,10 +50,10 @@ class DbsailorClient:
 
     def read_many_connections(
         self,
-        name_startswith: Optional[str],
-        type: Optional[Literal["atlas", "milvus"]],
-        service_name: Optional[str],
-        entity_name: Optional[str],
+        name_startswith: Optional[str] = None,
+        type: Optional[Literal["atlas", "milvus"]] = None,
+        service_name: Optional[str] = None,
+        entity_name: Optional[str] = None,
         sort: Optional[str] = "created_at",
         order: Optional[str] = "desc",
         offset: Optional[int] = 0,
@@ -61,15 +61,20 @@ class DbsailorClient:
     ):
 
         params = {
-            "name_startswith": name_startswith,
-            "type": type,
-            "service_name": service_name,
-            "entity_name": entity_name,
             "$sort": sort,
             "$order": order,
             "$offset": offset,
             "$limit": limit,
         }
+
+        if name_startswith:
+            params["name_startswith"] = name_startswith
+        if type:
+            params["type"] = type
+        if service_name:
+            params["service_name"] = service_name
+        if entity_name:
+            params["entity_name"] = entity_name
 
         res = self.http_client.get("/connections", params=params)
         self.handle_errors(res)
